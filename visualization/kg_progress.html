@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KG Update Progress</title>
+    <script>
+        const API_BASE_URL = "http://localhost:7689";
+        async function fetchProgress() {
+            const response = await fetch(`${API_BASE_URL}/kg_progress`);
+            const data = await response.json();
+            
+            const uniqueIds = new Set(data.stats.map(item => item.id));
+            document.getElementById("processed_docs").innerText = `${uniqueIds.size}`;
+            // Last doc elapsed time
+            document.getElementById("last_doc_time").innerText = data.last_doc_total 
+                ? `${data.last_doc_total} sec` 
+                : "N/A";
+
+            // Current doc elapsed time (real-time calculation)
+            if (data.current_doc_start) {
+                const startTime = new Date(data.current_doc_start);
+                const elapsedSeconds = ((new Date() - startTime) / 1000).toFixed(2);
+                document.getElementById("current_doc_time").innerText = `${elapsedSeconds} sec`;
+            } else {
+                document.getElementById("current_doc_time").innerText = "N/A";
+            }
+        }
+
+        async function fetchStats() {
+            const response = await fetch(`${API_BASE_URL}/kg_progress`);
+            const data = await response.json();
+
+            let groupedStats = {};
+
+            // Group corpus by id
+            data.stats.forEach(log => {
+                if (!groupedStats[log.id]) {
+                    groupedStats[log.id] = [];
+                }
+                groupedStats[log.id].push({
+                    chunk_id: log.chunk_id,
+                    chunk_length: log.chunk_length,
+                    extraction_0: log.extraction_0.toFixed(2),
+                    extraction_1: log.extraction_1.toFixed(2),
+                    align_entity: log.align_entity.toFixed(2),
+                    merge_entity: log.merge_entity.toFixed(2),
+                    align_relation: log.align_relation.toFixed(2),
+                    merge_relation: log.merge_relation.toFixed(2),
+                    processing_time: log.processing_time.toFixed(2),
+                    extracted_num_ent_rel: log.extracted_num_ent_rel
+                });
+            });
+
+            let statsHTML = "";
+            Object.keys(groupedStats).slice(-64).forEach(id => {  // Show last 5 queries
+                statsHTML += `<tr>
+                    <td rowspan="${groupedStats[id].length}">${id}</td>
+                    <td>${groupedStats[id][0].chunk_id}</td>
+                    <td>${groupedStats[id][0].chunk_length}</td>
+                    <td>${groupedStats[id][0].extraction_0} sec</td>
+                    <td>${groupedStats[id][0].extraction_1} sec</td>
+                    <td>${groupedStats[id][0].align_entity} sec</td>
+                    <td>${groupedStats[id][0].merge_entity} sec</td>
+                    <td>${groupedStats[id][0].align_relation} sec</td>
+                    <td>${groupedStats[id][0].merge_relation} sec</td>
+                    <td>${groupedStats[id][0].processing_time} sec</td>
+                    <td>${groupedStats[id][0].extracted_num_ent_rel}</td>
+                </tr>`;
+
+                for (let i = 1; i < groupedStats[id].length; i++) {
+                    statsHTML += `<tr>
+                        <td>${groupedStats[id][i].chunk_id}</td>
+                        <td>${groupedStats[id][i].chunk_length}</td>
+                        <td>${groupedStats[id][i].extraction_0} sec</td>
+                        <td>${groupedStats[id][i].extraction_1} sec</td>
+                        <td>${groupedStats[id][i].align_entity} sec</td>
+                        <td>${groupedStats[id][i].merge_entity} sec</td>
+                        <td>${groupedStats[id][i].align_relation} sec</td>
+                        <td>${groupedStats[id][i].merge_relation} sec</td>
+                        <td>${groupedStats[id][i].processing_time} sec</td>
+                        <td>${groupedStats[id][i].extracted_num_ent_rel}</td>
+                    </tr>`;
+                }
+            });
+
+            document.getElementById("stats_table").innerHTML = statsHTML;
+        }
+
+        function refresh() {
+            fetchProgress();
+            fetchStats();
+        }
+
+        refresh();
+        setInterval(refresh, 5000);  // Refresh every 5 seconds
+    </script>
+</head>
+<body>
+    <h1>KG Update Progress</h1>
+    <h3>Progress: <span id="processed_docs">Loading...</span></h3>
+    <h3>Last Doc Elapsed Time: <span id="last_doc_time">Loading...</span></h3>
+    <h3>Current Doc Elapsed Time: <span id="current_doc_time">Loading...</span></h3>
+    
+    <h2>Recent Corpus Processing Times</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Doc ID</th>
+                <th>Chunk ID</th>
+                <th>Chunk Length</th>
+                <th>Extraction 0 Time</th>
+                <th>Extraction 1 Time</th>
+                <th>Align Entity</th>
+                <th>Merge Entity</th>
+                <th>Align Relation</th>
+                <th>Merge Relation</th>
+                <th>Processing Time</th>
+                <th>Data Extracted</th>
+            </tr>
+        </thead>
+        <tbody id="stats_table">
+        </tbody>
+    </table>
+</body>
+</html>

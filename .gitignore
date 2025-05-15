@@ -1,0 +1,19 @@
+# Ignore all the Neo4j source files
+neo4j*/
+
+# Ignore the mock_api
+mock_api/
+dataset/*/
+
+# Ignore the results
+results/
+
+# Ignore local settings
+.env*
+.DS_Store
+.virtual_documents/
+
+# Ignore all caches
+.ipynb_checkpoints/
+__pycache__/
+dev/lib/

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open-Domain QA Progress</title>
+    <script>
+        const API_BASE_URL = "http://localhost:7689";
+
+        async function fetchProgress() {
+            const response = await fetch(`${API_BASE_URL}/answer_progress`);
+            const data = await response.json();
+
+            // Last batch elapsed time
+            document.getElementById("last_question_total").innerText = data.last_question_total 
+                ? `${data.last_question_total} sec` 
+                : "N/A";
+
+
+            // Display total and processed batches
+            const uniqueIds = new Set(data.stats.map(item => item.id));
+            document.getElementById("processed_questions").innerText = `${uniqueIds.size}`;
+
+            // Display last 32 queries and responses
+            let qaHTML = "";
+            if (data.stats) {
+                const totalLogs = data.stats.length;
+                data.stats.slice(-32).forEach((log, i) => {  // Take the last 32 entries
+                    qaHTML += `<tr>
+                        <td>${log.id}</td>  <!-- Show inferred question index -->
+                        <td>${log.query}</td>
+                        <td>${log.query_time}</td>
+                        <td>${log.ans}</td>
+                        <td>${log.prediction}</td>
+                        <td>${log.processing_time}</td>
+                    </tr>`;
+                });
+            }
+
+            document.getElementById("qa_table").innerHTML = qaHTML;
+        }
+
+        function refresh() {
+            fetchProgress();
+        }
+
+        refresh();
+        setInterval(refresh, 5000);  // Refresh every 5 seconds
+    </script>
+</head>
+<body>
+    <h1>Open-Domain QA Progress</h1>
+    <h3>QA Progress: <span id="processed_questions">Loading...</span></h3>
+    <h3>Last Questoin Elapsed Time: <span id="last_question_total">Loading...</span></h3>
+
+    <h2>Recent Processing Stats</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>#</th> 
+                <th>Query</th>
+                <th>Query Time</th>
+                <th>Expected Answer</th>
+                <th>Prediction</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="qa_table">
+        </tbody>
+    </table>
+</body>
+</html>

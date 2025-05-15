@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Evaluation Heatmap</title>
+    <script>
+        let loadedData = {};  // Store model-wise data
+
+        function extractModelName(fileName) {
+            return fileName.replace("_results.json", "");  // Remove suffix
+        }
+
+        async function loadJSON(inputElement) {
+            const file = inputElement.files[0];
+            if (!file) return;
+
+            const modelName = extractModelName(file.name);
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const data = JSON.parse(event.target.result);
+                loadedData[modelName] = data;
+                generateHeatmap();
+            };
+            console.log(loadedData);
+            
+            reader.readAsText(file);
+        }
+
+        function generateHeatmap() {
+            let questionIndices = new Set();
+            let models = Object.keys(loadedData);  // Extract model names from uploaded files
+
+            // Collect question indices
+            models.forEach(model => {
+                for (let i = 0; i < loadedData[model].length; i++) {
+                    questionIndices.add(i);
+                }
+            });
+
+            questionIndices = Array.from(questionIndices).sort((a, b) => a - b);  // Ensure sorted order
+
+            let tableHTML = "<table border='1'><thead><tr><th>Query ID</th>";
+
+            // Add model names as column headers
+            models.forEach(model => {
+                tableHTML += `<th>${model}</th>`;
+            });
+
+            tableHTML += "</tr></thead><tbody>";
+
+            // Generate heatmap rows for each question
+            questionIndices.forEach(index => {
+                if (loadedData[models[0]][index+1]) {
+                    tableHTML += `<tr><td>${loadedData[models[0]][index+1].id}</td>`;  // Question index as first column
+                }
+
+                models.forEach(model => {
+                    if (loadedData[model][index+1]) {
+                        const evalEntry = loadedData[model][index+1];
+                        const resultEntry = loadedData[model][index+1];
+
+                        const color = evalEntry.score === 1 ? "green" : (evalEntry.explanation === "I don't know." ? "blue" : "red");
+
+                        const tooltip = `Query: ${resultEntry.query}&#10;Ground Truth: ${resultEntry.ans}&#10;Prediction: ${resultEntry.prediction}&#10;Explanation: ${evalEntry.explanation}`;
+
+                        tableHTML += `<td class="heatmap-cell" style="background-color:${color};" title="${tooltip}"></td>`;
+                    } else {
+                        tableHTML += "<td class='heatmap-cell' style='background-color:gray;'></td>";
+                    }
+                });
+
+                tableHTML += "</tr>";
+            });
+
+            tableHTML += "</tbody></table>";
+            document.getElementById("heatmap-container").innerHTML = tableHTML;
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .heatmap-cell {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .heatmap-cell:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            white-space: pre-wrap;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>QA Evaluation Heatmap</h1>
+    <p>Upload the evaluation and results JSON files:</p>
+
+    <label>Upload Results JSON:</label>
+    <input type="file" onchange="loadJSON(this)" accept=".json">
+
+    <div id="heatmap-container">Load JSON files to visualize data.</div>
+</body>
+</html>
