@@ -10,6 +10,7 @@ results/
 
 # Ignore local settings
 .env*
+!.env_template
 .DS_Store
 .virtual_documents/
 

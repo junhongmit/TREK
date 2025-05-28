@@ -69,10 +69,11 @@ Open your browser and head to Neo4j console located at `http://localhost:7474/br
 Following the prompt and enter the default user name as `neo4j` and password as `password`.
 
 ## Dataset Preparation
-We evaluate the framework using [CRAG benchmark](https://arxiv.org/pdf/2406.04744). First, git clone the [CRAG Benchmark repo](https://github.com/facebookresearch/CRAG), and copy the `mock_api` folder into this folder (The `mock_api` contains the KG that is too big for me to upload to Github). Note: you may need to install [Git LFS](https://git-lfs.com/) to properly git clone all the raw datasets.
+We evaluate the framework using [CRAG benchmark](https://arxiv.org/pdf/2406.04744). First, git clone the [CRAG Benchmark repo](https://github.com/facebookresearch/CRAG), and copy the `CRAG/mock_api/movie` and `CRAG/mock_api/music` folders into the current `dataset` folder (they contain the KG that is too big to upload to Github). Note: you may need to install [Git LFS](https://git-lfs.com/) to properly git clone all the raw datasets.
 
-Secondly, download the Question Answering (QA) dataset following the link: [CRAG Benchmark](https://github.com/facebookresearch/CRAG).
-The dataset I am currently working on is the [QA Pairs & Retrieval Contents](https://github.com/facebookresearch/CRAG/raw/refs/heads/main/data/crag_task_1_and_2_dev_v4.jsonl.bz2?download=).
+Secondly, download the Question Answering (QA) dataset from [here](https://drive.google.com/drive/folders/1-iI4d6HX_65W6EmtoB0JAo4-dXXolxXt?usp=sharing) and put the two files under your specifified `DATASET_PATH` path in the `.env` fild.
+
+(They are the QA pairs filtered by the particular domains from the [CRAG Benchmark](https://github.com/facebookresearch/CRAG). The dataset I am currently working on is the [QA Pairs & Retrieval Contents](https://github.com/facebookresearch/CRAG/raw/refs/heads/main/data/crag_task_1_and_2_dev_v4.jsonl.bz2?download=))
 
 > :warning: **Remember to adjust the `DATASET_PATH` located in `.env` to your dataset location.**
 
