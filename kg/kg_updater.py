@@ -12,10 +12,11 @@ from typing import Any, Dict, List, Tuple
 from dataset import *
 from kg.kg_driver import *
 from kg.kg_rep import *
-from utils.prompt_list import PROMPTS
+from utils.prompt_list import *
 from utils.utils import *
 from utils.logger import *
 
+PROMPTS = get_default_prompts()
 PROMPTS["extraction"] = {
     # Formatted string
     "system": textwrap.dedent("""\

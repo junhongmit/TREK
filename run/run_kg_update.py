@@ -20,14 +20,14 @@ if __name__ == "__main__":
     if args.dataset.lower() == "movie":
         domain = "movie"
         loader = MovieDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_movie_dev.jsonl.bz2"), 
+            os.path.join(DATASET_PATH, "crag_task_1_and_2_dev_v4.jsonl.bz2"), 
             config, "doc", logger, 
             processor=functools.partial(updater.process_doc, domain=domain)
         )
     elif args.dataset.lower() == "sports":
         domain = "sports"
         loader = SportsDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_sports_dev.jsonl.bz2"), 
+            os.path.join(DATASET_PATH, "crag_task_1_and_2_dev_v4.jsonl.bz2"), 
             config, "doc", logger, 
             processor=functools.partial(updater.process_doc, domain=domain)
         )
