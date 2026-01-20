@@ -1,0 +1,19 @@
+# framework
+bs4
+blingfire
+loguru
+tqdm
+openai
+pandas==2.0.0
+neo4j
+numpy==1.26.4
+ray
+sentence-transformers
+sqlitedict
+trafilatura
+python-dotenv
+vllm
+
+# visualization
+pyvis
+seaborn
